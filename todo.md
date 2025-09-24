@@ -21,3 +21,5 @@
 
 #### キューブデザイナーで重複メンバーを許可したキューブを作成
 * Cube.Settings ワークシートに Allow Duplicate Member Names という設定項目があるか？
+    * ない。
+      Outline Typeという設定項目があり、Duplicate/Unique が設定できる。
