@@ -29,3 +29,8 @@
 * Cube.Settings ワークシートに Allow Duplicate Member Names という設定項目があるか？
     * ない。
       Outline Typeという設定項目があり、Duplicate/Unique が設定できる。
+
+## JP
+* 量と質
+  自由検索の頻度や検索件数、サブジェクト領域による加工
+* 行レベルセキュリティの移植
