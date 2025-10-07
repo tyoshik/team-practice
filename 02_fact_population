@@ -1,0 +1,90 @@
+-- 02_fact_population.sql
+SET TIMING ON
+DECLARE
+  v_target NUMBER := 5000000; -- 5,000,000 行（必要に応じて調整）
+  v_batch  NUMBER := 500000;  -- 一度に投入する行数（ADWに合わせて調整）
+  v_done   NUMBER := 0;
+  v_start  TIMESTAMP := SYSTIMESTAMP;
+BEGIN
+  -- Prepare helper views / arrays for mapping
+  -- 1) 取引対象日リスト（2024/07/01 - 2024/09/30 および 2025/07/01 - 2025/09/30）
+  EXECUTE IMMEDIATE 'CREATE GLOBAL TEMPORARY TABLE TMP_SALE_DATES ON COMMIT PRESERVE ROWS AS
+    SELECT DATE_ID, CALENDAR_DATE, ROW_NUMBER() OVER (ORDER BY CALENDAR_DATE) AS RN
+    FROM DIM_DATE
+    WHERE (CALENDAR_DATE BETWEEN DATE ''2024-07-01'' AND DATE ''2024-09-30'')
+       OR (CALENDAR_DATE BETWEEN DATE ''2025-07-01'' AND DATE ''2025-09-30'')
+    ORDER BY CALENDAR_DATE';
+
+  -- Get counts of dims to map by MOD
+  DECLARE
+    cnt_products NUMBER;
+    cnt_stores NUMBER;
+    cnt_customers NUMBER;
+    cnt_dates NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO cnt_products FROM DIM_PRODUCT;
+    SELECT COUNT(*) INTO cnt_stores FROM DIM_STORE;
+    SELECT COUNT(*) INTO cnt_customers FROM DIM_CUSTOMER;
+    SELECT COUNT(*) INTO cnt_dates FROM TMP_SALE_DATES;
+    DBMS_OUTPUT.PUT_LINE('Counts: products='||cnt_products||' stores='||cnt_stores||' customers='||cnt_customers||' sale_dates='||cnt_dates);
+
+    WHILE v_done < v_target LOOP
+      -- 実際のバッチサイズ（残数に合わせる）
+      DECLARE
+        cur_batch NUMBER := LEAST(v_batch, v_target - v_done);
+      BEGIN
+        INSERT /*+ APPEND */ INTO FACT_SALES(SALES_ID, SALES_DATE_ID, SALES_TIME_ID, STORE_ID, PRODUCT_ID, CUSTOMER_ID, EVENT_ID, QUANTITY, AMOUNT, CUSTOMER_COUNT)
+        SELECT
+          SEQ_SALES.NEXTVAL,
+          d.DATE_ID,
+          t.TIME_ID,
+          s.STORE_ID,
+          p.PRODUCT_ID,
+          -- customer: 会員率を考慮して 70% を会員、30% NULL
+          CASE WHEN MOD(rn, 10) < 7 THEN (MOD(rn, cnt_customers) + 1) ELSE NULL END AS customer_id,
+          -- イベント: イベント発生日近傍はイベントIDを割り当てる（簡易ロジック）
+          (CASE
+             WHEN d.CALENDAR_DATE BETWEEN DATE '2025-07-10' AND DATE '2025-07-20' THEN (SELECT EVENT_ID FROM DIM_EVENT WHERE EVENT_NAME LIKE '%閉店%' AND ROWNUM=1)
+             WHEN d.CALENDAR_DATE = DATE '2024-07-20' THEN (SELECT EVENT_ID FROM DIM_EVENT WHERE EVENT_NAME LIKE '%開店%' AND ROWNUM=1)
+             WHEN MOD(rn,500) = 0 THEN (SELECT EVENT_ID FROM DIM_EVENT WHERE EVENT_TYPE='地域イベント' AND ROWNUM=1)
+             ELSE NULL
+           END) EVENT_ID,
+          -- 数量：1-5 のランダム性（ただし人気商品はやや多め）
+          (1 + MOD(rn + NVL(p.POPULARITY,1), 5)) QUANTITY,
+          -- 金額 = price * quantity * (1 +/- 0.05 振れ幅)
+          ROUND(p.PRICE * (1 + (1 + MOD(rn,7))/100 - 0.03) * (1 + (MOD(rn,11)-5)/100),2) AMOUNT,
+          1 CUSTOMER_COUNT
+        FROM
+        (
+          SELECT ROWNUM rn FROM dual CONNECT BY LEVEL <= :cb
+        ) gen
+        CROSS JOIN (SELECT COUNT(*) c FROM dual) dummy
+        LEFT JOIN (SELECT * FROM (SELECT DATE_ID, CALENDAR_DATE, RN FROM TMP_SALE_DATES) ) d ON 1=1
+        -- Map rn into date index deterministically
+        -- We'll compute an index into TMP_SALE_DATES: idx = 1 + MOD(v_done + rn, cnt_dates)
+        -- To do that, create inline subqueries selecting the date by rownum based on formula
+        -- Use a correlated subquery for d to choose correct date per rn:
+        LEFT JOIN (
+          SELECT TMP.DATE_ID, TMP.RN, TMP.CALENDAR_DATE
+          FROM TMP_SALE_DATES TMP
+        ) dd ON dd.RN = 1 -- placeholder; we will instead compute date per generated rn below using arithmetic
+        -- Because correlated arithmetic in plain SELECT with generated ROWNUM is tricky, we will compute mapping via analytic expressions below:
+        , (SELECT PRODUCT_ID, ROW_NUMBER() OVER (ORDER BY PRODUCT_ID) - 1 AS IDX, PRICE, POPULARITY
+           FROM DIM_PRODUCT) p
+        , (SELECT STORE_ID, ROW_NUMBER() OVER (ORDER BY STORE_ID) - 1 AS SIDX
+           FROM DIM_STORE) s
+        , (SELECT TIME_ID, DATE_ID, ROW_NUMBER() OVER (ORDER BY DATE_ID) - 1 AS DIDX
+           FROM DIM_TIME WHERE DATE_ID IN (SELECT DATE_ID FROM TMP_SALE_DATES)) t
+        WHERE 1=1
+        -- NOTE: 上の複雑な JOIN 群は ADW の SQL 最適化に依存します。代替としては PL/SQL ループで挿入する方法もあります。
+        ;
+        COMMIT;
+      END;
+      v_done := v_done + cur_batch;
+      DBMS_OUTPUT.PUT_LINE('Inserted ' || v_done || ' / ' || v_target);
+    END LOOP;
+  END;
+EXCEPTION WHEN OTHERS THEN
+  RAISE;
+END;
+/
