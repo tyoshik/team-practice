@@ -1,0 +1,23 @@
+@echo off
+REM 環境変数 folderPath を設定
+set "folderPath=C:\D\Test Folder"
+
+REM カウンタ初期化
+set /A count=0
+
+REM 対象フォルダを確認表示
+echo 対象フォルダ: "%folderPath%"
+echo.
+
+REM サブフォルダを含めて .py ファイルを再帰的に処理
+for /R "%folderPath%" %%F in (*.py) do (
+    echo 変更中: "%%F"
+    ren "%%F" "*.pythonscript"
+    if not errorlevel 1 set /A count+=1
+)
+
+echo.
+echo ====================================================================
+echo 変更完了: %count% 件の .py ファイルを .pythonscript に変更しました。
+echo ====================================================================
+pause
