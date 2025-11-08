@@ -34,3 +34,13 @@
 * 量と質
     * 自由検索の頻度や検索件数、サブジェクト領域による加工
 * 行レベルセキュリティの移植
+
+## OACセキュリティ
+#### アプリケーション・ロール
+* BI Data Model Authorの権限
+  セキュリティフィルターをバイパスすると書いてあるので、データ・フィルタは効かないと思われる。これはOASのドキュメントだが、おそらくOACも一緒。
+  https://docs.oracle.com/en/middleware/bi/analytics-server/security-oas/grant-semantic-modeler-permissions-assignments.html
+
+```
+Assigning the semanticmodeler.author permission set allows users to bypass the Oracle BI Server security filters.
+```
