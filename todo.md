@@ -44,3 +44,6 @@
 ```
 Assigning the semanticmodeler.author permission set allows users to bypass the Oracle BI Server security filters.
 ```
+
+## Tableauとの比較
+* https://dataterrain.com/tableau-vs-oracle-analytics-cloud-enterprise-bi-security-governance
