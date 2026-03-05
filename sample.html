@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Sidebar Layout</title>
+    <style>
+        /* デザイナー注：Flexboxを使って分割しています */
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        /* サイドバー */
+        #sidebar {
+            width: 260px;
+            background-color: #1e1e1e; /* ダークなGemini風 */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* メインコンテンツエリア */
+        #main-content {
+            flex-grow: 1; /* 残りの幅をすべて使う */
+            overflow-y: auto; /* コンテンツが増えたらここだけスクロール */
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* あなたのコードを入れるコンテナ */
+        .user-content-area {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 { color: #333; }
+        .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
+        .menu-item:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <h3>My Project</h3>
+        <div class="menu-item">🏠 ホーム</div>
+        <div class="menu-item">📂 プロジェクト</div>
+        <div class="menu-item">⚙️ 設定</div>
+    </nav>
+
+    <main id="main-content">
+        <h1>Gemini風レイアウト</h1>
+        
+        <div class="user-content-area">
+            <p>ここが「内部に自分書いたコード」を入れる場所です。</p>
+            <p>ここに自作のボタンやフォーム、グラフなどを配置してみてください。</p>
+        </div>
+        <p/>
+        <div class="user-content-area">
+            <p>ここが「内部に自分書いたコード」を入れる場所、その2です。</p>
+            <p>ここに自作のボタンやフォーム、グラフなどを配置してみてください。</p>
+        </div>
+    </main>
+
+</body>
+</html>
