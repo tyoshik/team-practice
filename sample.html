@@ -52,7 +52,7 @@
             width: 100%;
             max-width: 700px;
             background-color: #E9E2DB;
-            padding: 20px;
+            padding: 10px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
@@ -61,16 +61,18 @@
         .user-content-area {
             width: 100%;
             max-width: 80%;
-            height: 900px;
+            flex: 1 1 auto;
+            overflow: auto;
             background-color: #FFFCF3;
             padding: 10px;
             border-radius: 12px;
             display: flex;
+            justify-content: center; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .assistant { width: 300px; flex: 0 0 auto; }
-        .container { width: calc(90% - 300px); flex: 0 1 auto; }
+        .assistant { width: 400px; flex: 0 0 auto; }
+        .container { width: calc(80% - 400px); flex: 0 1 auto; }
 
         h1 { font-size:18px; }
         .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
@@ -124,5 +126,6 @@
     </main>
 </body>
 </html>
+
 
 
