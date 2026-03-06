@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Sidebar Layout</title>
+    <title>Sample OAC AI Agent</title>
     <style>
         /* デザイナー注：Flexboxを使って分割しています */
         body {
@@ -35,7 +35,17 @@
             align-items: center;
         }
 
-        /* あなたのコードを入れるコンテナ */
+        /* 最初のメッセージを入れるコンテナ */
+        .first-message-area {
+            width: 100%;
+            max-width: 800px;
+            background-color: #E9E2DB;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* コードを入れるコンテナ */
         .user-content-area {
             width: 100%;
             max-width: 800px;
@@ -55,23 +65,22 @@
     <nav id="sidebar">
         <h3>My Project</h3>
         <div class="menu-item">🏠 ホーム</div>
-        <div class="menu-item">📂 プロジェクト</div>
-        <div class="menu-item">⚙️ 設定</div>
+        <div class="menu-item">📂 <a href="">可視化する</a></div>
+        <div class="menu-item">⚙️ <a href="settings.html">設定</a></div>
     </nav>
 
     <main id="main-content">
-        <h1>Gemini風レイアウト</h1>
-        
-        <div class="user-content-area">
-            <p>ここが「内部に自分書いたコード」を入れる場所です。</p>
-            <p>ここに自作のボタンやフォーム、グラフなどを配置してみてください。</p>
+        <h1>検索したいデータがどこにあるか探しましょう</h1>
+
+        <div class="first-message-area">
+            <h2>最初のメッセージ</h2>
         </div>
         <p/>
         <div class="user-content-area">
-            <p>ここが「内部に自分書いたコード」を入れる場所、その2です。</p>
-            <p>ここに自作のボタンやフォーム、グラフなどを配置してみてください。</p>
+            <p>ここにOAC AIアシスタントを配置する。</p>
         </div>
     </main>
 
 </body>
+
 </html>
