@@ -60,15 +60,15 @@
         /* コードを入れるコンテナ */
         .user-content-area {
             width: 100%;
-            max-width: 80%;
-            min-width: 700px;
-            flex: 1 1 auto;
+            max-width: 80%; /* 最大幅 */
+            min-width: 700px; /* 最低幅 */
+            flex: 1 1 auto; /* 表示位置より下を全部使う */
             overflow: auto;
             background-color: #FFFCF3;
             padding: 10px;
             border-radius: 12px;
-            display: flex;
-            justify-content: center; 
+            display: flex; /* 横並び */
+            justify-content: center; /* 中央揃え */
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
@@ -115,6 +115,12 @@
                 class="assistant"
                 id="oaAssistant"
                 src-data="[&quot;XSA('8abcd170-274e-4d77-9438-109e97ae5fb6'.'CatalogSearch')&quot;]">
+                <!-- サブジェクト領域も指定できた
+                ここで指定した「1 - 販売分析」はオブジェクトID、両端の"は削除する
+                src-data="[&quot;1 - 販売分析&quot;]">
+                ついでにサブジェクト領域から作成したデータセットも試してみたら、できた
+                src-data="[&quot;XSA('47d774fe-b14b-49dd-8319-66d4c18c89a0'.'SAエージェント用データセット')&quot;]">
+                -->
             </oracle-analytics-assistant>
             <script>
                 oracle.oa.embedding.ready().then(oApp => oApp.applyBindings());
