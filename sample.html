@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v2/embedding/auto/embedding.js" type="application/javascript"></script>
+    <!-- script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v2/embedding/auto/embedding.js" type="application/javascript"></script -->
+    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js" type="application/javascript"></script>
     <title>Sample OAC AI Agent</title>
     <style>
         /* デザイナー注：Flexboxを使って分割しています */
@@ -23,12 +24,6 @@
             width: 100%;
             height: 100%;
             display: block;
-        }
-
-        html{
-            font-family:var(--bi-font-family);
-            font-size:var(--bi-typography-body-md-font-size,12px);
-            height:100%;
         }
 
         /* サイドバー */
@@ -66,7 +61,7 @@
         .user-content-area {
             width: 100%;
             max-width: 80%;
-            background: white;
+            background-color: #FFFCF3;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -77,6 +72,7 @@
         .menu-item:hover { color: white; }
         h2 { font-size:16px; }
         h3 { font-size:14px; }
+        html{ font-size:12px; height:100%; }
     </style>
 </head>
 <body>
@@ -106,16 +102,24 @@
         <p/>
         <div class="user-content-area">
             <p>ここにOAC AIアシスタントを配置する。</p>
-            <oracle-analytics-assistant
+            <oracle-dv project-path="/users/takanobu.yoshikawa@oracle.com/AI Agent/CatalogSearch_WB">
+            </oracle-dv>
+<!--            <oracle-analytics-assistant
                 id="oaAssistant"
-                src-data="[&quot;XSA('8abcd170-274e-4d77-9438-109e97ae5fb6'.'CatalogSearch')&quot;]">
+                src-data="["XSA('takanobu.yoshikawa@oracle.com'.'CatalogSearch')"]">
             </oracle-analytics-assistant>
             <script>
                 oracle.oa.embedding.ready().then(oApp => oApp.applyBindings());
             </script>
+-->
         </div>
+        <script>
+            requirejs(['knockout', 'ojs/ojcore', 'ojs/ojknockout', 'ojs/ojcomposite', 'jet-composites/oracle-dv/loader'], function(ko) {   ko.applyBindings();
+            });
+        </script>
     </main>
 </body>
 </html>
+
 
 
