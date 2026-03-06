@@ -25,6 +25,12 @@
             display: block;
         }
 
+        html{
+            font-family:var(--bi-font-family);
+            font-size:var(--bi-typography-body-md-font-size,12px);
+            height:100%;
+        }
+
         /* サイドバー */
         #sidebar {
             width: 260px;
@@ -66,9 +72,11 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        h1 { color: #333; }
+        h1 { font-size:16px; }
         .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
         .menu-item:hover { color: white; }
+        h2 { font-size:14px; }
+        h3 { font-size:12px; }
     </style>
 </head>
 <body>
@@ -109,3 +117,4 @@
     </main>
 </body>
 </html>
+
