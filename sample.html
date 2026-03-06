@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v2/embedding/auto/embedding.js" type="application/javascript"></script -->
-    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js" type="application/javascript"></script>
+    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v2/embedding/auto/embedding.js" type="application/javascript"></script>
+    <!-- script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js" type="application/javascript"></script -->
     <title>Sample OAC AI Agent</title>
     <style>
         /* デザイナー注：Flexboxを使って分割しています */
@@ -61,6 +61,7 @@
         .user-content-area {
             width: 100%;
             max-width: 80%;
+            height: 900px;
             background-color: #FFFCF3;
             padding: 30px;
             border-radius: 12px;
@@ -101,18 +102,16 @@
         </div>
         <p/>
         <div class="user-content-area">
-            <p>ここにOAC AIアシスタントを配置する。</p>
             <oracle-dv project-path="/users/takanobu.yoshikawa@oracle.com/AI Agent/CatalogSearch_WB">
             </oracle-dv>
-<!--            <oracle-analytics-assistant
+            <oracle-analytics-assistant
                 id="oaAssistant"
                 src-data="["XSA('takanobu.yoshikawa@oracle.com'.'CatalogSearch')"]">
             </oracle-analytics-assistant>
+        </div>
             <script>
                 oracle.oa.embedding.ready().then(oApp => oApp.applyBindings());
             </script>
--->
-        </div>
         <script>
             requirejs(['knockout', 'ojs/ojcore', 'ojs/ojknockout', 'ojs/ojcomposite', 'jet-composites/oracle-dv/loader'], function(ko) {   ko.applyBindings();
             });
@@ -120,6 +119,3 @@
     </main>
 </body>
 </html>
-
-
-
