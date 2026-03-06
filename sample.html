@@ -65,8 +65,12 @@
             background-color: #FFFCF3;
             padding: 30px;
             border-radius: 12px;
+            display: flex;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+
+        .assistant { width: 300px; flex: 0 0 auto; }
+        .container { width: calc(90% - 300px); flex: 0 1 auto; }
 
         h1 { font-size:18px; }
         .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
@@ -102,16 +106,17 @@
         </div>
         <p/>
         <div class="user-content-area">
-            <oracle-dv project-path="/users/takanobu.yoshikawa@oracle.com/AI Agent/CatalogSearch_WB">
+            <oracle-dv class="container" project-path="/users/takanobu.yoshikawa@oracle.com/AI Agent/CatalogSearch_WB" project-options='{"bShowFilterBar":false}'>
             </oracle-dv>
             <oracle-analytics-assistant
+                class="assistant"
                 id="oaAssistant"
-                src-data="["XSA('takanobu.yoshikawa@oracle.com'.'CatalogSearch')"]">
+                src-data="[&quot;XSA('takanobu.yoshikawa@oracle.com'.'CatalogSearch')&quot;]">
             </oracle-analytics-assistant>
-        </div>
             <script>
                 oracle.oa.embedding.ready().then(oApp => oApp.applyBindings());
             </script>
+        </div>
         <script>
             requirejs(['knockout', 'ojs/ojcore', 'ojs/ojknockout', 'ojs/ojcomposite', 'jet-composites/oracle-dv/loader'], function(ko) {   ko.applyBindings();
             });
@@ -119,3 +124,4 @@
     </main>
 </body>
 </html>
+
