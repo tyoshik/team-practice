@@ -88,15 +88,15 @@
     </main>
 
     <script>
-        // content.md を読み込んで表示する処理
+        // コンテンツを読み込んで表示する処理
         async function loadMarkdown() {
             const contentDiv = document.getElementById('content');
             try {
                 // 1. 同じディレクトリの content.md を取得
-                const response = await fetch('content.md');
+                const response = await fetch('c1.md');
                 
                 if (!response.ok) {
-                    throw new Error('content.md が見つかりません。ファイル名を確認してください。');
+                    throw new Error('c1.md が見つかりません。ファイル名を確認してください。');
                 }
 
                 const markdownText = await response.text();
