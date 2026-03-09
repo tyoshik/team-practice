@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        A:link { color:#ffffff; text-decoration: none; }
+        A:visited { color:#ffffff; text-decoration: none; }
+        A:hover { color:#ffff00; text-decoration: underline; }
+
+        /* サイドバー */
+        #sidebar {
+            width: 220px;
+            background-color: #1e1e1e; /* ダークなGemini風 */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* メインコンテンツエリア */
+        #main-content {
+            flex-grow: 1; /* 残りの幅をすべて使う */
+            overflow-y: auto; /* コンテンツが増えたらここだけスクロール */
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ★ Markdown表示エリアのスタイル ★ */
+        .user-content-area {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* Markdown内の各要素を装飾 */
+        .user-content-area h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #1a73e8; font-size:18px; }
+        .user-content-area h2 { margin-top: 30px; color: #444; font-size:16px; }
+        .user-content-area h3 { font-size:14px; }
+        .user-content-area html{ font-size:12px; }
+        .user-content-area code { background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+        .user-content-area pre { background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .user-content-area blockquote { border-left: 4px solid #1a73e8; margin: 0; padding-left: 20px; color: #666; font-style: italic; }
+
+        h1 { font-size:18px; }
+        .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
+        .menu-item:hover { color: white; }
+        h2 { font-size:16px; }
+        h3 { font-size:14px; }
+        html{ font-size:12px; height:100%; }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <h3>My Project</h3>
+        <div class="menu-item">🏠 <a href="sample.html">ホーム</a></div>
+        <div class="menu-item">📜 <a href="c1.html">説明1</a></div>
+        <div class="menu-item">🏫 <a href="c2.html">説明2</a></div>
+        <div class="menu-item">💰️ <a href="v1.html">売上を分析する</a></div>
+        <div class="menu-item">🗾 <a href="v2.html">地図上で分析する</a></div>
+        <div class="menu-item">💹 <a href="">自分で可視化する</a></div>
+        <div class="menu-item">⚙️ <a href="">設定</a></div>
+    </nav>
+
+    <main id="main-content">
+        <div id="content" class="user-content-area">
+            Loading...
+        </div>
+    </main>
+
+    <script>
+        // コンテンツを読み込んで表示する処理
+        async function loadMarkdown() {
+            const contentDiv = document.getElementById('content');
+            try {
+                // 1. 同じディレクトリの content.md を取得
+                const response = await fetch('c2.md');
+                
+                if (!response.ok) {
+                    throw new Error('c2.md が見つかりません。ファイル名を確認してください。');
+                }
+
+                const markdownText = await response.text();
+                
+                // 2. Marked.js を使って HTML に変換して流し込む
+                contentDiv.innerHTML = marked.parse(markdownText);
+                
+            } catch (error) {
+                contentDiv.innerHTML = `<p style="color:red;">エラー: ${error.message}</p>`;
+            }
+        }
+
+        // 実行
+        loadMarkdown();
+    </script>
+</body>
+</html>
