@@ -1,0 +1,35 @@
+あなたは、Oracle Analytics Cloud（OAC）に精通したWeb開発者です。
+仕様に従って、HTMLをコーディングしてください。
+
+# 仕様
+- HTMLにOACのワークブックを埋め込んで表示します。
+- OACの認証はトークンベースとします。
+  - OACにログインしプロファイル画面からダウンロードした tokens.json を特定のディレクトリに手動でダウンロードするものとします。
+  - 開発するHTMLは、同じディレクトリに作成します。
+  - tokens.jsonのaccess_tokenを読み取ってOACへの認証に使用します。
+  - tokens.jsonのサンプルは次の通りです
+    {
+      "access_token": "eyJ4NXQjUzI...",
+      "token_type": "Bearer",
+      "expires_in": 3600
+    }
+- OACのホスト名は「examples.analytics.oraclecloud.com」とします。
+- HTMLに埋め込むOACのワークブックへのパスは「/shared/Samples/World Cities」とします。
+
+# 条件および方法
+- 確実性を重視してください。
+- 参考にする主な情報源
+  - 公式ドキュメントを参考にしてください。
+    - https://docs.oracle.com/en/cloud/paas/analytics-cloud/acsdv/embed-content.html
+  - 公式ブログ
+    - https://blogs.oracle.com/
+	  - https://blogs.oracle.com/analytics/embedding-the-oracle-analytics-cloud-ai-assistant-into-a-custom-html-page
+	  - https://blogs.oracle.com/analytics/embedding-innovation-everywhere
+	  - https://blogs.oracle.com/analytics/embedding-analytics-for-the-win
+  - Mike Durran氏の一連のブログ記事
+    - https://insight2action.medium.com/
+  - その他、必要に応じて情報を収集してください。
+- 出力フォーマット
+  - HTML（コードはJavascript）
+- 動作確認は python3 -m http.server で実施します
+- 最終出力の前に、自己採点してください。100点満点で95点未満の場合は、プロセスを繰り返して100点を目指してください。ただし、繰り返し回数は最大10回とします。
