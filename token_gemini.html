@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAC Workbook Embedding - Tak's Project</title>
+    
+    <script src="https://examples.analytics.oraclecloud.com/embedding/v1/ui/bootstrap.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        #embedding-container {
+            width: 100%;
+            height: calc(100vh - 100px);
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .status-msg {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>OAC Embedded Workbook</h1>
+        <p id="status" class="status-msg">Initializing authentication...</p>
+    </div>
+
+    <div id="embedding-container"></div>
+
+    <script>
+        /**
+         * tokens.jsonからトークンを取得し、OACコンポーネントを初期化する
+         */
+        async function initializeOAC() {
+            const statusEl = document.getElementById('status');
+            const container = document.getElementById('embedding-container');
+
+            try {
+                // 3. tokens.json の読み込み
+                const response = await fetch('./tokens.json');
+                if (!response.ok) throw new Error('tokens.json が見つからないか、読み込めません。');
+                
+                const data = await response.json();
+                const accessToken = data.access_token;
+
+                if (!accessToken) throw new Error('tokens.json 内に access_token が見つかりません。');
+
+                // 4. oracle-dv 要素の生成と設定
+                const oacElement = document.createElement('oracle-dv');
+                
+                // 仕様に基づいたパスとホストの設定
+                oacElement.setAttribute('project-path', '/shared/Samples/World Cities');
+                oacElement.setAttribute('active-page', 'canvas', '1');
+                
+                // トークン認証の設定 (Mike Durran氏推奨のプロパティ設定)
+                oacElement.authConfig = {
+                    accessToken: accessToken,
+                    tokenType: 'Bearer'
+                };
+
+                // DOMに追加して表示開始
+                container.appendChild(oacElement);
+                
+                statusEl.innerText = "Workbook loaded successfully.";
+                statusEl.style.color = "green";
+
+            } catch (error) {
+                console.error('Embedding Error:', error);
+                statusEl.innerText = "Error: " + error.message;
+                statusEl.style.color = "red";
+            }
+        }
+
+        // ページロード時に実行
+        window.onload = initializeOAC;
+    </script>
+</body>
+</html>

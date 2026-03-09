@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>OAC Workbook Embed (Token Auth)</title>
+
+<!-- OAC Embedding Framework -->
+<script src="https://examples.analytics.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?TOKEN=true"
+        type="application/javascript"></script>
+
+<style>
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+}
+
+#container{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:10px;
+}
+
+#workbook{
+    width:100%;
+    height:100%;
+    border:1px solid #ccc;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="container">
+
+    <oracle-dv
+        id="workbook"
+        project-path="/shared/Samples/World Cities"
+        active-page="insight">
+    </oracle-dv>
+
+</div>
+
+<script>
+
+async function loadToken() {
+
+    // tokens.json を読み込む
+    const response = await fetch("./tokens.json");
+
+    if(!response.ok){
+        throw new Error("tokens.json の読み込みに失敗しました");
+    }
+
+    const data = await response.json();
+
+    if(!data.access_token){
+        throw new Error("tokens.json に access_token が存在しません");
+    }
+
+    return data.access_token;
+}
+
+async function initEmbedding(){
+
+    const token = await loadToken();
+
+    requirejs([
+        'jquery',
+        'knockout',
+        'obitech-application/application',
+        'ojs/ojcore',
+        'ojs/ojknockout',
+        'ojs/ojcomposite',
+        'jet-composites/oracle-dv/loader'
+    ],
+
+    function($, ko, application){
+
+        application.setSecurityConfig("token", {
+
+            tokenAuthFunction: function(){
+                return token;
+            }
+
+        });
+
+        ko.applyBindings();
+
+    });
+}
+
+initEmbedding();
+
+</script>
+
+</body>
+</html>
