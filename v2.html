@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v2/embedding/auto/embedding.js" type="application/javascript"></script -->
-    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js" type="application/javascript"></script>
+    <!-- TOKEN=true有効: 3-Legged OAuth -->
+    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?IDCS_OAUTH3LEGGED=true" type="application/javascript"></script>
     <title>Sample OAC AI Agent</title>
     <style>
-        /* デザイナー注：Flexboxを使って分割しています */
         body {
             margin: 0;
             display: flex;
@@ -15,17 +14,14 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f9f9f9;
         }
-
         A:link { color:#ffffff; text-decoration: none; }
         A:visited { color:#ffffff; text-decoration: none; }
         A:hover { color:#ffff00; text-decoration: underline; }
-
         oracle-analytics-assistant {
             width: 100%;
             height: 100%;
             display: block;
         }
-
         /* サイドバー */
         #sidebar {
             width: 220px;
@@ -36,7 +32,6 @@
             padding: 20px;
             box-sizing: border-box;
         }
-
         /* メインコンテンツエリア */
         #main-content {
             flex-grow: 1; /* 残りの幅をすべて使う */
@@ -46,7 +41,6 @@
             flex-direction: column;
             align-items: center;
         }
-
         /* 最初のメッセージを入れるコンテナ */
         .first-message-area {
             width: 100%;
@@ -56,7 +50,6 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-
         /* コードを入れるコンテナ */
         .user-content-area {
             width: 100%;
@@ -70,10 +63,8 @@
             justify-content: center; /* 中央揃え */
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-
         .assistant { width: 400px; flex: 0 0 auto; }
         .container { width: calc(80% - 400px); flex: 0 1 auto; }
-
         h1 { font-size:18px; }
         .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
         .menu-item:hover { color: white; }
@@ -83,7 +74,6 @@
     </style>
 </head>
 <body>
-
     <nav id="sidebar">
         <h3>My Project</h3>
         <div class="menu-item">🏠 <a href="sample.html">ホーム</a></div>
@@ -91,19 +81,29 @@
         <div class="menu-item">🏫 <a href="c2.html">説明2</a></div>
         <div class="menu-item">💰️ <a href="v1.html">売上を分析する</a></div>
         <div class="menu-item">🗾 <a href="v2.html">地図上で分析する</a></div>
-        <div class="menu-item">💹 <a href="">自分で可視化する</a></div>
+        <div class="menu-item">🏄️ <a href="v3.html">トークンを試す</a></div>
+        <div class="menu-item">💹 <a href="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/ui/dv" target="_blank">自分で可視化する</a></div>
         <div class="menu-item">⚙️ <a href="">設定</a></div>
-    </nav>
-
+   </nav>
     <main id="main-content">
         <div class="user-content-area">
-            <oracle-dv class="container" project-path="/users/takanobu.yoshikawa@oracle.com/ビジュアライゼーションサンプル/小田原市 AED設置場所" project-options='{"bShowFilterBar":false}'>
+            <oracle-dv class="container" 
+                       project-path="/@Catalog/users/takanobu.yoshikawa@oracle.com/ベクトルマップレイヤー" 
+                       active-page="canvas"
+                       project-options='{"bShowFilterBar":false}'>
             </oracle-dv>
         </div>
-        <script>
-            requirejs(['knockout', 'ojs/ojcore', 'ojs/ojknockout', 'ojs/ojcomposite', 'jet-composites/oracle-dv/loader'], function(ko) {   ko.applyBindings();
-            });
-        </script>
     </main>
+
+    <script>
+        requirejs(['jquery', 'knockout', 'obitech-application/application', 'ojs/ojcore', 'ojs/ojknockout', 'ojs/ojcomposite', 'jet-composites/oracle-dv/loader'],
+            function($, ko, application) {
+
+                // 3-Legged OAuth設定
+                application.setSecurityConfig("oauth_3legged");
+                ko.applyBindings();
+            }
+        );
+    </script>
 </body>
 </html>
