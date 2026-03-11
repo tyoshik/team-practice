@@ -5,7 +5,7 @@
 <title>OAC Workbook Embed (Token Auth)</title>
 
 <!-- OAC Embedding Framework -->
-<script src="https://examples.analytics.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?TOKEN=true"
+<script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?TOKEN=true"
         type="application/javascript"></script>
 
 <style>
@@ -38,7 +38,7 @@ body{
 
     <oracle-dv
         id="workbook"
-        project-path="/shared/Samples/World Cities"
+        project-path="/@Catalog/users/takanobu.yoshikawa@oracle.com/World Cities Data"
         active-page="insight">
     </oracle-dv>
 
@@ -47,25 +47,21 @@ body{
 <script>
 
 async function loadToken() {
-
     // tokens.json を読み込む
     const response = await fetch("./tokens.json");
-
     if(!response.ok){
         throw new Error("tokens.json の読み込みに失敗しました");
     }
 
     const data = await response.json();
-
-    if(!data.access_token){
+    if(!data.accessToken){
         throw new Error("tokens.json に access_token が存在しません");
     }
 
-    return data.access_token;
+    return data.accessToken;
 }
 
 async function initEmbedding(){
-
     const token = await loadToken();
 
     requirejs([
@@ -79,7 +75,6 @@ async function initEmbedding(){
     ],
 
     function($, ko, application){
-
         application.setSecurityConfig("token", {
 
             tokenAuthFunction: function(){
@@ -87,9 +82,7 @@ async function initEmbedding(){
             }
 
         });
-
         ko.applyBindings();
-
     });
 }
 
