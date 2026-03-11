@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- TOKEN=true有効: Token Auth -->
+    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?TOKEN=true" type="application/javascript"></script>
+    <title>Sample OAC Workbook Embed (Token Auth)</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        A:link { color:#ffffff; text-decoration: none; }
+        A:visited { color:#ffffff; text-decoration: none; }
+        A:hover { color:#ffff00; text-decoration: underline; }
+        oracle-analytics-assistant {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        /* サイドバー */
+        #sidebar {
+            width: 220px;
+            background-color: #1e1e1e; /* ダークなGemini風 */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        /* メインコンテンツエリア */
+        #main-content {
+            flex-grow: 1; /* 残りの幅をすべて使う */
+            overflow-y: auto; /* コンテンツが増えたらここだけスクロール */
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* 最初のメッセージを入れるコンテナ */
+        .first-message-area {
+            width: 100%;
+            max-width: 700px;
+            background-color: #E9E2DB;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        /* コードを入れるコンテナ */
+        .user-content-area {
+            width: 100%;
+            max-width: 80%; /* 最大幅 */
+            min-width: 700px; /* 最低幅 */
+            flex: 1 1 auto; /* 表示位置より下を全部使う */
+            overflow: auto;
+            background-color: #FFFCF3;
+            padding: 10px;
+            border-radius: 12px;
+            justify-content: center; /* 中央揃え */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .assistant { width: 400px; flex: 0 0 auto; }
+        .container { width: calc(80% - 400px); flex: 0 1 auto; }
+        h1 { font-size:18px; }
+        .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
+        .menu-item:hover { color: white; }
+        h2 { font-size:16px; }
+        h3 { font-size:14px; }
+        html{ font-size:12px; height:100%; }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <h3>My Project</h3>
+        <div class="menu-item">🏠 <a href="sample.html">ホーム</a></div>
+        <div class="menu-item">📜 <a href="c1.html">説明1</a></div>
+        <div class="menu-item">🏫 <a href="c2.html">説明2</a></div>
+        <div class="menu-item">💰️ <a href="v1.html">売上を分析する</a></div>
+        <div class="menu-item">🗾 <a href="v2.html">地図上で分析する</a></div>
+        <div class="menu-item">💹 <a href="">自分で可視化する</a></div>
+        <div class="menu-item">⚙️ <a href="">設定</a></div>
+    </nav>
+    <main id="main-content">
+        <div class="user-content-area">
+            <oracle-dv class="container" 
+                       project-path="/@Catalog/users/takanobu.yoshikawa@oracle.com/ベクトルマップレイヤー" 
+                       active-page="canvas"
+                       project-options='{"bShowFilterBar":false}'>
+            </oracle-dv>
+        </div>
+    </main>
+
+    <script>
+        async function loadToken() {
+            // tokens.json を読み込む
+            const response = await fetch("./tokens.json");
+            if(!response.ok){
+                throw new Error("tokens.json の読み込みに失敗しました");
+            }
+
+            const data = await response.json();
+            if(!data.accessToken){
+                throw new Error("tokens.json に access_token が存在しません");
+            }
+
+            return data.accessToken;
+        }
+
+        async function initEmbedding(){
+            const token = await loadToken();
+
+            requirejs([
+                'jquery',
+                'knockout',
+                'obitech-application/application',
+                'ojs/ojcore',
+                'ojs/ojknockout',
+                'ojs/ojcomposite',
+                'jet-composites/oracle-dv/loader'
+            ],
+
+            function($, ko, application){
+                application.setSecurityConfig("token", {
+                    tokenAuthFunction: function(){
+                        return token;
+                    }
+                });
+                ko.applyBindings();
+            });
+        }
+
+        initEmbedding();
+    </script>
+</body>
+</html>
