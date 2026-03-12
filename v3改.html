@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- TOKEN=true有効: Token Auth -->
+    <script src="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/public/dv/v1/embedding/standalone/embedding.js?TOKEN=true"
+                    type="application/javascript"></script>
+    <title>Sample OAC Workbook Embed (Token Auth)</title>
+
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        A:link { color:#ffffff; text-decoration: none; }
+        A:visited { color:#ffffff; text-decoration: none; }
+        A:hover { color:#ffff00; text-decoration: underline; }
+
+        /* サイドバー */
+        #sidebar {
+            width: 220px;
+            background-color: #1e1e1e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .user-content-area {
+            width: 100%;
+            max-width: 80%;
+            min-width: 700px;
+            flex: 1 1 auto;
+            overflow: auto;
+            background-color: #FFFCF3;
+            padding: 10px;
+            border-radius: 12px;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .assistant { width: 400px; flex: 0 0 auto; }
+        .container { width: calc(80% - 400px); flex: 0 1 auto; }
+        h1 { font-size:18px; }
+        .menu-item { margin-bottom: 15px; color: #ccc; cursor: pointer; }
+        .menu-item:hover { color: white; }
+        h2 { font-size:16px; }
+        h3 { font-size:14px; }
+        html{ font-size:12px; height:100%; }
+
+        /* 右上ボタンUI */
+        #top-right-controls {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 9999;
+            display: flex;
+            gap: 8px;
+        }
+        .ctrl-btn {
+            appearance: none;
+            border: 1px solid #d0d7de;
+            background: #111827;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            white-space: nowrap;
+        }
+        .ctrl-btn:hover { background: #1f2937; }
+        .ctrl-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .ctrl-btn.secondary {
+            background: #0b5cab;
+            border-color: #0b5cab;
+        }
+        .ctrl-btn.secondary:hover { background: #094b8d; }
+
+        /* 期限切れ表示時の強調 */
+        .expired {
+            background: #7f1d1d !important;
+            border-color: #7f1d1d !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav id="sidebar">
+        <h3>My Project</h3>
+        <div class="menu-item">🏠 <a href="sample.html">ホーム</a></div>
+        <div class="menu-item">📜 <a href="c1.html">説明1</a></div>
+        <div class="menu-item">🏫 <a href="c2.html">説明2</a></div>
+        <div class="menu-item">💰️ <a href="v1.html">売上を分析する</a></div>
+        <div class="menu-item">🗾 <a href="v2.html">地図上で分析する</a></div>
+        <div class="menu-item">🏄️ <a href="v3.html">トークンを試す</a></div>
+        <div class="menu-item">💹 <a href="https://oacdemo2-orasejapan-nt.analytics.ocp.oraclecloud.com/ui/dv" target="_blank">自分で可視化する</a></div>
+        <div class="menu-item">⚙️ <a href="">設定</a></div>
+    </nav>
+
+    <!-- 右上ボタン2つ -->
+    <div id="top-right-controls">
+        <button id="btnTokenRefresh" class="ctrl-btn" type="button">
+            トークンをリフレッシュ (--)
+        </button>
+        <button id="btnWorkbookRefresh" class="ctrl-btn secondary" type="button">
+            ワークブックをリフレッシュ
+        </button>
+    </div>
+
+    <main id="main-content">
+        <div class="user-content-area">
+            <oracle-dv id="project1"
+                                 class="container"
+                                 project-path="/@Catalog/users/takanobu.yoshikawa@oracle.com/ベクトルマップレイヤー"
+                                 active-page="insight"
+                                 project-options='{"bShowFilterBar":false}'>
+            </oracle-dv>
+        </div>
+    </main>
+
+    <script>
+        // ===== グローバル状態 =====
+        let currentToken = "";
+        let tokenExpiresInSec = 0;
+
+        // tokens.json の「更新時刻」扱い（基本は Last-Modified を採用）
+        let tokenUpdatedAtMs = null;    // epoch ms
+        let initialized = false;
+
+        let elapsedTimerId = null;
+
+        // ===== ユーティリティ =====
+        function parseLastModifiedToMs(lastModifiedHeader) {
+            if (!lastModifiedHeader) return null;
+            const t = Date.parse(lastModifiedHeader);
+            return Number.isFinite(t) ? t : null;
+        }
+
+        function getElapsedSec() {
+            if (!tokenUpdatedAtMs) return null;
+            return Math.floor((Date.now() - tokenUpdatedAtMs) / 1000);
+        }
+
+        function updateTokenButtonLabel() {
+            const btn = document.getElementById("btnTokenRefresh");
+            const elapsed = getElapsedSec();
+
+            // expiresIn が無い/不正な場合も落とさず表示
+            const expires = Number(tokenExpiresInSec);
+            const hasExpires = Number.isFinite(expires) && expires > 0;
+
+            if (elapsed === null) {
+                btn.textContent = "トークンをリフレッシュ (--)";
+                btn.classList.remove("expired");
+                return;
+            }
+
+            if (hasExpires && elapsed > expires) {
+                btn.textContent = "トークンをリフレッシュ (期限切れ)";
+                btn.classList.add("expired");
+            } else {
+                btn.textContent = `トークンをリフレッシュ (${elapsed})`;
+                btn.classList.remove("expired");
+            }
+        }
+
+        function startElapsedCounter() {
+            if (elapsedTimerId) clearInterval(elapsedTimerId);
+            updateTokenButtonLabel();
+            elapsedTimerId = setInterval(updateTokenButtonLabel, 1000);
+        }
+
+        // ===== tokens.json 読み込み =====
+        async function loadTokenAndMeta() {
+            // cache bust & no-store で「再読み込み」を強制
+            const url = `./tokens.json?cb=${Date.now()}`;
+            const response = await fetch(url, { cache: "no-store" });
+
+            if (!response.ok) {
+                throw new Error("tokens.json の読み込みに失敗しました");
+            }
+
+            const data = await response.json();
+
+            // 前提：tokens.json には accessToken / expiresIn
+            if (!data.accessToken) {
+                throw new Error("tokens.json に accessToken が存在しません");
+            }
+
+            const lm = response.headers.get("Last-Modified");
+            const lastModifiedMs = parseLastModifiedToMs(lm);
+
+            return {
+                accessToken: data.accessToken,
+                expiresIn: data.expiresIn,
+                updatedAtMs: lastModifiedMs ?? Date.now(), // Last-Modified が無い場合は取得時刻を使用
+                updatedAtSource: lastModifiedMs ? "Last-Modified" : "FetchedAt"
+            };
+        }
+
+        // ===== 埋め込み初期化（再実行可能） =====
+        async function initEmbedding() {
+            const btn1 = document.getElementById("btnTokenRefresh");
+            btn1.disabled = true;
+
+            try {
+                const meta = await loadTokenAndMeta();
+
+                currentToken = meta.accessToken;
+                tokenExpiresInSec = Number(meta.expiresIn) || 0;
+                tokenUpdatedAtMs = meta.updatedAtMs;
+
+                // ボタンラベルのカウント開始/更新
+                startElapsedCounter();
+
+                // 初回のみ requirejs + applyBindings
+                if (!initialized) {
+                    requirejs([
+                        'jquery',
+                        'knockout',
+                        'obitech-application/application',
+                        'ojs/ojcore',
+                        'ojs/ojknockout',
+                        'ojs/ojcomposite',
+                        'jet-composites/oracle-dv/loader'
+                    ], function ($, ko, application) {
+
+                        // tokenAuthFunction は「最新の currentToken」を返すようにしておく
+                        application.setSecurityConfig("token", {
+                            tokenAuthFunction: function () {
+                                return currentToken;
+                            }
+                        });
+
+                        ko.applyBindings();
+                        initialized = true;
+                    });
+                }
+            } finally {
+                btn1.disabled = false;
+            }
+        }
+
+        // ===== ワークブックのデータリフレッシュ（トークン再読込なし） =====
+        function refreshWorkbookOnly() {
+            const el = document.getElementById("project1");
+            if (!el) return;
+
+            if (typeof el.refreshData === "function") {
+                el.refreshData();
+            } else {
+                // embedding.js のロード/初期化前は refreshData がまだ付かない場合がある
+                console.warn("refreshData() が利用できません（埋め込み初期化前の可能性）");
+            }
+        }
+
+        // ===== UIイベント =====
+        document.getElementById("btnTokenRefresh").addEventListener("click", () => {
+            // 要件：クリックで initEmbedding 関数を再実行
+            initEmbedding().catch(err => console.error(err));
+        });
+
+        document.getElementById("btnWorkbookRefresh").addEventListener("click", () => {
+            refreshWorkbookOnly();
+        });
+
+        // 起動時
+        initEmbedding().catch(err => console.error(err));
+    </script>
+</body>
+</html>
